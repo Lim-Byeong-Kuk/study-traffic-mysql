@@ -4,6 +4,8 @@ import com.example.fastcampusmysql.domain.post.dto.DailyPostCount;
 import com.example.fastcampusmysql.domain.post.dto.DailyPostCountRequest;
 import com.example.fastcampusmysql.domain.post.entity.Post;
 import com.example.fastcampusmysql.domain.post.repository.PostRepository;
+import com.example.fastcampusmysql.util.CursorRequest;
+import com.example.fastcampusmysql.util.PageCursor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,5 +33,23 @@ public class PostReadService {
 
     public Page<Post> getPosts(Long memberId, Pageable pageable) {
         return postRepository.findAllByMemberId(memberId, pageable);
+    }
+
+    public PageCursor<Post> getPosts(Long memberId, CursorRequest cursorRequest) {
+        List<Post> posts = findAllBy(memberId, cursorRequest);
+        // key 값중 가장 작은 것을 찾는다. 위에서 받은 List 가 비어 있을 경우 CursorRequest.NONE_KEY 로 받는다.
+        long nextKey = posts.stream()
+                .mapToLong(Post::getId)
+                .min()
+                .orElse(CursorRequest.NONE_KEY);
+        return new PageCursor<>(cursorRequest.next(nextKey), posts);
+    }
+
+    private List<Post> findAllBy(Long memberId, CursorRequest cursorRequest) {
+        if (cursorRequest.hasKey()) {
+            return postRepository.findAllByLessThanIdAndMemberIdAndOrderByIdDesc(cursorRequest.key(), memberId, cursorRequest.size());
+        }
+
+        return postRepository.findAllByMemberIdAndOrderByIdDesc(memberId, cursorRequest.size());
     }
 }
