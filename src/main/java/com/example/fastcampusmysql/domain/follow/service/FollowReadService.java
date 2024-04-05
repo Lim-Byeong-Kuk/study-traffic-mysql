@@ -15,4 +15,10 @@ public class FollowReadService {
         return followRepository.findAllByFromMemberId(memberId);
     }
     // TODO : DTO 만들어보기
+
+
+    public List<Follow> getFollowers(Long memberId) {
+        return followRepository.findAllByToMemberId(memberId);
+    }
+
 }
