@@ -98,4 +98,5 @@ public class MemberRepository {
         namedParameterJdbcTemplate.update(sql, params);
         return member;
     }
+
 }
