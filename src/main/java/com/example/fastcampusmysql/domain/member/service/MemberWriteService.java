@@ -7,6 +7,7 @@ import com.example.fastcampusmysql.domain.member.repository.MemberNicknameHistor
 import com.example.fastcampusmysql.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -15,6 +16,7 @@ public class MemberWriteService {
     private final MemberNicknameHistoryRepository memberNicknameHistoryRepository;
 
     // record 타입 RegisterMemberCommand 를 파라미터로
+    @Transactional
     public Member register(RegisterMemberCommand command) {
         Member member = Member.builder()
                 .nickname(command.nickname())
@@ -50,4 +52,5 @@ public class MemberWriteService {
 
         memberNicknameHistoryRepository.save(history);
     }
+
 }
